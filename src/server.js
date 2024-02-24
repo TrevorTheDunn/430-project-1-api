@@ -17,6 +17,8 @@ const urlStruct = {
     '/': htmlHandler.getIndex,
     '/client.html': htmlHandler.getIndex,
     '/style.css': htmlHandler.getCSS,
+    '/getAmiibo': htmlHandler.getAmiibo,
+    '/getCollection': htmlHandler.getCollection,
     '/getUsers': jsonHandler.getUsers,
     notFound: jsonHandler.notFound,
   },
@@ -67,7 +69,8 @@ const handlePost = (request, response, parsedUrl) => {
 // under the request's method
 const handleGet = (request, response, parsedUrl) => {
   if (urlStruct[request.method][parsedUrl.pathname]) {
-    return urlStruct[request.method][parsedUrl.pathname](request, response);
+    //return urlStruct[request.method][parsedUrl.pathname](request, response);
+    return parseBody(request, response, urlStruct[request.method][parsedUrl.pathname]);
   }
 
   return urlStruct[request.method].notFound(request, response);

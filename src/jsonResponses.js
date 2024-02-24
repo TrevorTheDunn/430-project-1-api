@@ -1,6 +1,10 @@
 // list of users, is temporary so will be reset whenever the server is reset
 const users = {};
 
+const amiibo = {};
+const collection = {};
+const favorites = {};
+
 // respondJSOn function - takes in a request, response, status, and object
 // writes the response's head using the status code and headers json
 // writes a stringified version of the object json to the response
@@ -92,8 +96,44 @@ const addUser = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+const getAmiibo = async (request, response, body) => {
+  const startUrl = 'https://amiiboapi.com/api/amiibo/';
+  let parameters = '';
+  let searchUrl = '';
+
+  if(body.name) {
+    parameters += `name=${body.name}`;
+  }
+
+  if(body.gameSeries) {
+    if(parameters != '') { parameters += '&'; }
+    parameters += `gameseries=${body.gameSeries}`;
+  }
+
+  if(body.amiiboSeries) {
+    if(parameters != '') { parameters += '&'; }
+    parameters += `amiiboSeries=${body.amiiboSeries}`;
+  }
+
+  if(body.type) {
+    if(parameters != '') { parameters += '&'; }
+    parameters += `type=${body.type}`;
+  }
+
+  if(parameters != '') {
+    searchUrl = `${startUrl}?${parameters}`;
+  } else {
+    searchUrl = startUrl;
+  }
+
+  let apiResponse = await fetch(searchUrl);
+
+  console.log(apiResponse);
+};
+
 // public exports
 module.exports = {
+  getAmiibo,
   getUsers,
   getUsersMeta,
   notFound,

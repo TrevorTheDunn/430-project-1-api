@@ -9,75 +9,122 @@
     // switch statement to check the status of the respnose and print out a bold
     // message accordingly to the content box. then, if parseResponse is true,
     // parses the response's json to properly print out the message or the users
-    const handleResponse = async (response, parseResponse) => {
-      const content = document.querySelector('#content');
+    // const handleResponse = async (response, parseResponse) => {
+    //   const content = document.querySelector('#content');
 
-      switch(response.status) {
-        case 200:
-          content.innerHTML = `<b>Success</b>`;
-          break;
-        case 201:
-          content.innerHTML = `<b>Created</b>`;
-          break;
-        case 204:
-          content.innerHTML = `<b>Updated (No Content)</b>`;
-          break;
-        case 400:
-          content.innerHTML = `<b>Bad Request</b>`;
-          break;
-        case 404:
-          content.innerHTML = `<b>Not Found</b>`;
-          break;
-        default:
-          content.innerHTML = `Error code not implemented by client.`;
-          break;
-      }
-      if(parseResponse) {
-        console.log(response);
-        let obj = await response.json();
-        if(obj.message) {
-          content.innerHTML += `<p>Message: ${obj.message}</p>`;
-        } else {
-          let jsonString = JSON.stringify(obj.users);
-          content.innerHTML += `<p>${jsonString}</p>`;
-        }
-      }
-    };
+    //   switch(response.status) {
+    //     case 200:
+    //       content.innerHTML = `<b>Success</b>`;
+    //       break;
+    //     case 201:
+    //       content.innerHTML = `<b>Created</b>`;
+    //       break;
+    //     case 204:
+    //       content.innerHTML = `<b>Updated (No Content)</b>`;
+    //       break;
+    //     case 400:
+    //       content.innerHTML = `<b>Bad Request</b>`;
+    //       break;
+    //     case 404:
+    //       content.innerHTML = `<b>Not Found</b>`;
+    //       break;
+    //     default:
+    //       content.innerHTML = `Error code not implemented by client.`;
+    //       break;
+    //   }
+    //   if(parseResponse) {
+    //     console.log(response);
+    //     let obj = await response.json();
+    //     if(obj.message) {
+    //       content.innerHTML += `<p>Message: ${obj.message}</p>`;
+    //     } else {
+    //       let jsonString = JSON.stringify(obj.users);
+    //       content.innerHTML += `<p>${jsonString}</p>`;
+    //     }
+    //   }
+    // };
 
     // requestUpdate function - takes in the user form and constructs a
     // response using the url and method in the nameForm. passes the response
     // into handleResponse with a boolean for whether or not the method is get
     // as head requests aren't supposed to have messages
-    const requestUpdate = async (userForm) => {
-      const url = userForm.querySelector('#urlField').value;
-      const method = userForm.querySelector('#methodSelect').value;
+    // const requestUpdate = async (userForm) => {
+    //   const url = userForm.querySelector('#urlField').value;
+    //   const method = userForm.querySelector('#methodSelect').value;
 
-      let response = await fetch(url, {
-        method,
-        headers: {
-          'Accept': 'application/json'
-        },
-      });
+    //   let response = await fetch(url, {
+    //     method,
+    //     headers: {
+    //       'Accept': 'application/json'
+    //     },
+    //   });
 
-      handleResponse(response, method === 'get');
-    };
+    //   handleResponse(response, method === 'get');
+    // };
 
     // sendPost function - takes in name form and constructs a response using
     // the values in the name form: the action, method, name, and age
     // passes the response into handleResponse as well as a bool value that
     // checks to make sure the status isn't 204, as an update to a user
     // doesn't print a message aside from Updated
-    const sendPost = async (nameForm) => {
-      const nameAction = nameForm.getAttribute('action');
-      const nameMethod = nameForm.getAttribute('method');
+    // const sendPost = async (nameForm) => {
+    //   const nameAction = nameForm.getAttribute('action');
+    //   const nameMethod = nameForm.getAttribute('method');
 
-      const nameField = nameForm.querySelector('#nameField');
-      const ageField = nameForm.querySelector('#ageField');
+    //   const nameField = nameForm.querySelector('#nameField');
+    //   const ageField = nameForm.querySelector('#ageField');
 
-      const formData = `name=${nameField.value}&age=${ageField.value}`;
+    //   const formData = `name=${nameField.value}&age=${ageField.value}`;
 
-      let response = await fetch(nameAction, {
-        method: nameMethod,
+    //   let response = await fetch(nameAction, {
+    //     method: nameMethod,
+    //     headers: {
+    //       'Content-Type': 'application/x-www-form-urlencoded',
+    //       'Accept': 'application/json',
+    //     },
+    //     body: formData,
+    //   });
+
+    //   handleResponse(response, response.status != 204);
+    // };
+
+    // Init function is called when window.onload runs (set below).
+    // Sets up event listeners so that requestUpdate is eventually called
+    // whenever the userform is submitted and sendpost is eventually
+    // called when the nameform is submitted
+    // const init = () => {
+    //   const userForm = document.querySelector('#userForm');
+    //   const nameForm = document.querySelector('#nameForm');
+
+    //   const getUsers = (e) => {
+    //     e.preventDefault();
+    //     requestUpdate(userForm);
+    //     return false;
+    //   }
+
+    //   const addUser = (e) => {
+    //     e.preventDefault();
+    //     sendPost(nameForm);
+    //     return false;
+    //   }
+
+    //   userForm.addEventListener('submit', getUsers);
+    //   nameForm.addEventListener('submit', addUser);
+    // };
+
+    const requestUpdate = async (form) => {
+      const url = '/getAmiibo';
+      const method = 'get';
+
+      const nameField = form.querySelector('#nameField');
+      const gameSeriesField = form.querySelector('#gameSeriesField');
+      const amiiboSeriesField = form.querySelector('#amiiboSeriesField');
+      const typeSelect = form.querySelector('#typeSelect');
+      
+      const formData = `name=${nameField.value}&gameSeries=${gameSeriesField.value}&amiiboSeries=${amiiboSeriesField.value}&type=${typeSelect.value}`;
+
+      let response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
@@ -85,31 +132,19 @@
         body: formData,
       });
 
-      handleResponse(response, response.status != 204);
-    };
+      handleResponse(response, method === 'get');
+    }
 
-    // Init function is called when window.onload runs (set below).
-    // Sets up event listeners so that requestUpdate is eventually called
-    // whenever the userform is submitted and sendpost is eventually
-    // called when the nameform is submitted
     const init = () => {
-      const userForm = document.querySelector('#userForm');
-      const nameForm = document.querySelector('#nameForm');
+      const amiiboForm = document.querySelector('#amiiboForm');
 
-      const getUsers = (e) => {
+      const getAmiibo = (e) => {
         e.preventDefault();
-        requestUpdate(userForm);
+        requestUpdate(amiiboForm);
         return false;
       }
 
-      const addUser = (e) => {
-        e.preventDefault();
-        sendPost(nameForm);
-        return false;
-      }
-
-      userForm.addEventListener('submit', getUsers);
-      nameForm.addEventListener('submit', addUser);
+      amiiboForm.addEventListener('submit', getAmiibo);
     };
 
     // When the window loads, run init.
@@ -119,26 +154,21 @@
 </head>
 <body>
   <section id="top">
-    <h3>POST Status Code Tests</h3>
-    <form id="nameForm" action="/addUser" method="post">
+    <h3>Amiibo Collector</h3>
+    <form id="amiiboForm" action="/getAmiibo" method="get">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
-      <label for="age">Age: </label>
-      <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
-      <input type="submit" value="Add User" />
-    </form>
-    <form id="userForm" action="/getUsers" method="get">
-      <select id='urlField'>
-        <option value='/getUsers'>/getUsers</option>
-        <option value='/notReal'>/notReal</option>
+      <label for="gameSeries">Game Series: </label>
+      <input id="gameSeriesField" type="text" name="gameSeries" />
+      <label for="amiiboSeries">Amiibo Series: </label>
+      <input id="amiiboSeriesField" type="text" name="amiiboSeries" />
+      <select id="typeSelect">
+        <option value="figure">Figure</option>
+        <option value="card">Card</option>
+        <option value="yarn">Yarn</option>
       </select>
-      <select id="methodSelect">
-        <option value="get">GET</option>
-        <option value="head">HEAD</option>
-      </select>
-      <input type="submit" value="Get User" />
+      <input type="submit" value="Get Amiibo" />
     </form>
-  </section>
   <section id="content">
   </section>
 </body>

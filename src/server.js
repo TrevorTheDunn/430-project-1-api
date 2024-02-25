@@ -17,13 +17,14 @@ const urlStruct = {
     '/': htmlHandler.getIndex,
     '/client.html': htmlHandler.getIndex,
     '/style.css': htmlHandler.getCSS,
-    '/getAmiibo': htmlHandler.getAmiibo,
-    '/getCollection': htmlHandler.getCollection,
-    '/getUsers': jsonHandler.getUsers,
+    '/client2.html': htmlHandler.getCollections,
+    '/getAmiibo': jsonHandler.getAmiibo,
+    '/getCollections': jsonHandler.getCollections,
     notFound: jsonHandler.notFound,
   },
   HEAD: {
-    '/getUsers': jsonHandler.getUsersMeta,
+    '/getAmiibo': jsonHandler.getAmiiboMeta,
+    '/getCollections': jsonHandler.getCollectionsMeta,
     notFound: jsonHandler.notFoundMeta,
   },
 };
@@ -58,8 +59,8 @@ const parseBody = (request, response, handler) => {
 // handlePost function: if the parsedUrl's pathname is /addUser, 
 // calls parseBody, passing in the addUser function from jsonHandler
 const handlePost = (request, response, parsedUrl) => {
-  if (parsedUrl.pathname === '/addUser') {
-    parseBody(request, response, jsonHandler.addUser);
+  if (parsedUrl.pathname === '/addCollection') {
+    parseBody(request, response, jsonHandler.addCollection);
   }
 };
 
@@ -69,8 +70,7 @@ const handlePost = (request, response, parsedUrl) => {
 // under the request's method
 const handleGet = (request, response, parsedUrl) => {
   if (urlStruct[request.method][parsedUrl.pathname]) {
-    //return urlStruct[request.method][parsedUrl.pathname](request, response);
-    return parseBody(request, response, urlStruct[request.method][parsedUrl.pathname]);
+    return urlStruct[request.method][parsedUrl.pathname](request, response);
   }
 
   return urlStruct[request.method].notFound(request, response);

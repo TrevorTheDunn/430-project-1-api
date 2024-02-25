@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Amiibo Collections</title>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  
+  <script>
+    // handleResponse method - takes in a response object and a parseResponse bool
+    const handleResponse = async (response, parseResponse) => {
+      const content = document.querySelector('#content');
+
+      switch(response.status) {
+        case 200:
+          content.innerHTML += `<b>Success</b>`;
+          break;
+        case 201:
+          content.innerHTML += `<b>Created</b>`;
+          break;
+        case 204:
+          content.innerHTML += `<b>Updated (No Content)</b>`;
+          break;
+        case 400:
+          content.innerHTML += `<b>Bad Request</b>`;
+          break;
+        case 404:
+          content.innerHTML += `<b>Not Found</b>`;
+          break;
+        default:
+          content.innerHTML += `Error code not implemented by client.`;
+          break;
+      }
+      if(parseResponse) {
+        let obj = await response.json();
+        console.log(obj);
+        if(obj.message) {
+            content.innerHTML += `<p>Message: ${obj.message}</p>`;
+            if(response.status === 201) {
+                requestUpdate();
+            }
+        } else if(obj.collections) {
+            let collections = obj.collections;
+            console.log(collections);
+            if(collections.length >= 1) {
+                for(let c of collections) {
+                    let html = '<div>';
+                    html += `<h1>${c.name}</h1></div>`;
+                    content.innerHTML += html;
+                }
+            }
+        }
+      }
+    };
+
+    const requestUpdate = async () => {
+      const url = '/getCollections';
+      const method = 'GET';
+
+      let response = await fetch(url, {
+        method,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      handleResponse(response, method === 'GET');
+    }
+
+    const sendPost = async (form) => {
+        const action = form.getAttribute('action');
+        const method = form.getAttribute('method');
+        
+        const collectionNameField = form.querySelector('#collectionNameField');
+
+        const formData = `collectionName=${collectionNameField.value}`;
+
+        let response = await fetch(action, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+            },
+            body: formData,
+        });
+
+        handleResponse(response, method === 'post');
+    };
+
+    const init = () => {
+      const collectionForm = document.querySelector('#collectionsForm');
+
+      const addCollection = (e) => {
+        e.preventDefault();
+        sendPost(collectionForm);
+        return false;
+      }
+
+      collectionForm.addEventListener('submit', addCollection);
+
+      requestUpdate();
+    };
+
+    // When the window loads, run init.
+    window.onload = init;
+
+  </script>
+</head>
+<body>
+  <section id="top">
+    <h3>Amiibo Collections</h3>
+    <form id="collectionsForm" action="/addCollection" method="post">
+        <label for="collectionName">Collection Name: </label>
+        <input id="collectionNameField" type="text" name="collectionName" />
+        <input type="submit" value="Add Collection" />
+    </form>
+  <section id="content">
+  </section>
+</body>
+</html>

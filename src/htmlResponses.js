@@ -11,7 +11,7 @@ const getIndex = (request, response) => {
   response.end();
 };
 
-const getCollection = (request, response) => {
+const getCollections = (request, response) => {
   response.writeHead(200, { 'Content-Type': 'text/html' });
   response.write(collection);
   response.end();
@@ -27,6 +27,6 @@ const getCSS = (request, response) => {
 // set our public exports
 module.exports = {
   getIndex,
-  getCollection,
+  getCollections,
   getCSS,
 };

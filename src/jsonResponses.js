@@ -1,9 +1,6 @@
-// list of users, is temporary so will be reset whenever the server is reset
-const users = {};
+const url = require('url');
 
-const amiibo = {};
-const collection = {};
-const favorites = {};
+let collections = [];
 
 // respondJSOn function - takes in a request, response, status, and object
 // writes the response's head using the status code and headers json
@@ -29,22 +26,6 @@ const respondJSONMeta = (request, response, status) => {
   response.end();
 };
 
-// getUsers function - takes in a request and response
-// constructs a responseJSON using the users list
-// passes the request and response into respondJSON as well as
-// a 200 status code and the responseJSON object
-const getUsers = (request, response) => {
-  const responseJSON = {
-    users,
-  };
-
-  return respondJSON(request, response, 200, responseJSON);
-};
-
-// getUsersMeta function - takes in a request and response
-// passes the request and response into respondJSONMeta with a 200 status code
-const getUsersMeta = (request, response) => respondJSONMeta(request, response, 200);
-
 // notFound function - takes in a request and response
 // creates a JSON with a message and id to indicate the page wasn't found
 // passes the request and response to respondJSON with a 404 status code and 
@@ -64,79 +45,100 @@ const notFoundMeta = (request, response) => {
   respondJSONMeta(request, response, 404);
 };
 
-// addUser function - takes in a request, response, and body
-// determines if the body is missing a name or age and responds accordingly
-// determines if the user is new or existing, and either updates the existing
-// user or creates a new one and handles that accordingly
-const addUser = (request, response, body) => {
+// getAmiibo function - takes in a request and response
+// parses the request's url to get the query parameters
+// adds the query parameters to the base url and performs
+// a fetch request to amiibo api. Checks the returned json,
+// if it is empty, calls respondJSON with a 400 status code and
+// passes in a JSON with a message and id indicating no results
+// otherwise, saves the returned amiibos in the searchedAmiibo array
+// and constructs a responseJSON, then passing it to respondJSOn with a 200 status code
+const getAmiibo = async (request, response) => {
+  const startUrl = 'https://amiiboapi.com/api/amiibo';
+  let searchUrl = '';
+
+  let parsedUrl = url.parse(request.url);
+
+  searchUrl = `${startUrl}?${parsedUrl.query}`;
+
+  let apiResponse = await fetch(searchUrl);
+  let obj = await apiResponse.json();
+
+  if(obj.amiibo.length < 1) {
+    const responseJSON = {
+      message: 'No Results For The Search Queries',
+      id: 'noResults',
+    };
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  let returnedAmiibo = obj.amiibo;
+
   const responseJSON = {
-    message: 'Name and age are both required.',
+    returnedAmiibo,
   };
 
-  if (!body.name || !body.age) {
+  return respondJSON(request, response, 200, responseJSON);
+};
+
+// getAmiiboMeta - takes in a request and response
+// calls respondJSONMeta and passes the request, response, and
+// a 200 status code
+const getAmiiboMeta = (request, response) => {
+  return respondJSONMeta(request, response, 200);
+};
+
+// getCollections - takes in a request and response
+const getCollections = (request, response) => {
+  const responseJSON = {
+    collections,
+  };
+
+  return respondJSON(request, response, 200, responseJSON);
+};
+
+
+const getCollectionsMeta = (request, response) => {
+  return respondJSONMeta(request, response, 200);
+};
+
+const addCollection = (request, response, body) => {
+  const responseJSON = {
+    message: 'A name is required.',
+  };
+
+  if(!body.collectionName) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  let responseCode = 204;
-
-  if (!users[body.name]) {
-    responseCode = 201;
-    users[body.name] = {};
+  for(let c of collections) {
+    if(c.name === body.collectionName) {
+      responseJSON.message = 'A collection with this name already exists.';
+      responseJSON.id = 'alreadyExists';
+      return respondJSON(request, response, 400, responseJSON);
+    }
   }
 
-  users[body.name].name = body.name;
-  users[body.name].age = body.age;
+  let responseCode = 201;
+  let collectionJSON = {
+    'name': body.collectionName,
+    'content': [],
+  };
+  collections.push(collectionJSON);
 
-  if (responseCode === 201) {
-    responseJSON.message = 'Created Successfully';
-    return respondJSON(request, response, responseCode, responseJSON);
-  }
+  responseJSON.message = 'Collection Created Successfully.';
 
-  return respondJSONMeta(request, response, responseCode);
-};
-
-const getAmiibo = async (request, response, body) => {
-  const startUrl = 'https://amiiboapi.com/api/amiibo/';
-  let parameters = '';
-  let searchUrl = '';
-
-  if(body.name) {
-    parameters += `name=${body.name}`;
-  }
-
-  if(body.gameSeries) {
-    if(parameters != '') { parameters += '&'; }
-    parameters += `gameseries=${body.gameSeries}`;
-  }
-
-  if(body.amiiboSeries) {
-    if(parameters != '') { parameters += '&'; }
-    parameters += `amiiboSeries=${body.amiiboSeries}`;
-  }
-
-  if(body.type) {
-    if(parameters != '') { parameters += '&'; }
-    parameters += `type=${body.type}`;
-  }
-
-  if(parameters != '') {
-    searchUrl = `${startUrl}?${parameters}`;
-  } else {
-    searchUrl = startUrl;
-  }
-
-  let apiResponse = await fetch(searchUrl);
-
-  console.log(apiResponse);
+  return respondJSON(request, response, responseCode, responseJSON);
 };
 
 // public exports
 module.exports = {
   getAmiibo,
-  getUsers,
-  getUsersMeta,
+  getAmiiboMeta,
+  getCollections,
+  getCollectionsMeta,
+  addCollection,
   notFound,
   notFoundMeta,
-  addUser,
 };

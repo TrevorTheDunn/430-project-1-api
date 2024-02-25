@@ -17,6 +17,7 @@ const urlStruct = {
     '/': htmlHandler.getIndex,
     '/client.html': htmlHandler.getIndex,
     '/style.css': htmlHandler.getCSS,
+    '/collections': htmlHandler.getCollections,
     '/client2.html': htmlHandler.getCollections,
     '/getAmiibo': jsonHandler.getAmiibo,
     '/getCollections': jsonHandler.getCollections,
@@ -61,6 +62,8 @@ const parseBody = (request, response, handler) => {
 const handlePost = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/addCollection') {
     parseBody(request, response, jsonHandler.addCollection);
+  } else if (parsedUrl.pathname === '/addAmiibo') {
+    parseBody(request, response, jsonHandler.addAmiibo);
   }
 };
 

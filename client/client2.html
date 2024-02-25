@@ -5,28 +5,57 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+
+    const createHTML = (collection) => {
+      let newForm = document.createElement('form');
+      newForm.id = collection.name;
+
+      let collectionName = document.createElement('h1');
+      collectionName.innerText = collection.name;
+      newForm.appendChild(collectionName);
+
+      if(collection.content.length >= 1) {
+        for(let a of collection.content) {
+          let div = document.createElement('div');
+          div.id = a.name;
+
+          let aName = document.createElement('h3');
+          aName.innerText = a.name;
+          div.appendChild(aName);
+
+          let aImage = document.createElement('img');
+          aImage.src = a.image;
+          div.appendChild(aImage);
+
+          newForm.appendChild(div);
+        }
+      }
+
+      return newForm;
+    }
+
     // handleResponse method - takes in a response object and a parseResponse bool
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
 
       switch(response.status) {
         case 200:
-          content.innerHTML += `<b>Success</b>`;
+          content.innerHTML = `<b>Success</b>`;
           break;
         case 201:
-          content.innerHTML += `<b>Created</b>`;
+          content.innerHTML = `<b>Created</b>`;
           break;
         case 204:
-          content.innerHTML += `<b>Updated (No Content)</b>`;
+          content.innerHTML = `<b>Updated (No Content)</b>`;
           break;
         case 400:
-          content.innerHTML += `<b>Bad Request</b>`;
+          content.innerHTML = `<b>Bad Request</b>`;
           break;
         case 404:
-          content.innerHTML += `<b>Not Found</b>`;
+          content.innerHTML = `<b>Not Found</b>`;
           break;
         default:
-          content.innerHTML += `Error code not implemented by client.`;
+          content.innerHTML = `Error code not implemented by client.`;
           break;
       }
       if(parseResponse) {
@@ -42,9 +71,7 @@
             console.log(collections);
             if(collections.length >= 1) {
                 for(let c of collections) {
-                    let html = '<div>';
-                    html += `<h1>${c.name}</h1></div>`;
-                    content.innerHTML += html;
+                    content.appendChild(createHTML(c));
                 }
             }
         }

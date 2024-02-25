@@ -5,11 +5,55 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+
+    const setupUI = (forms) => {
+      for(let f of forms) {
+        const addAmiibo = (e) => {
+          e.preventDefault();
+          sendPost(f);
+          return false;
+        }
+
+        f.addEventListener('submit', addAmiibo);
+      }
+    };
+
+    const constructHTML = (amiibo, collections) => {
+      let newForm = document.createElement('form');
+      newForm.action = '/addAmiibo';
+      newForm.method = 'post';
+      newForm.innerHTML += `<h1 id="amiiboName">${amiibo.name}<h1>`;
+      newForm.innerHTML += `<img id="amiiboImage" src="${amiibo.image}" />`;
+
+      let selector = document.createElement('select');
+      selector.id = 'collectionSelect';
+
+      let option = document.createElement('option');
+      option.value = '';
+      option.innerText = '';
+      selector.appendChild(option);
+
+      if(collections.length >= 1) {
+        for(let c of collections) {
+          let newOption = document.createElement('option');
+          newOption.value = `${c.name}`;
+          newOption.innerText = `${c.name}`;
+          selector.appendChild(newOption);
+        }
+      }
+
+      newForm.appendChild(selector);
+
+      let submitButton = document.createElement('input');
+      submitButton.type = 'submit';
+      submitButton.value = 'Add To Collection';
+      newForm.appendChild(submitButton);
+      return newForm;
+    };
+
     // handleResponse method - takes in a response object and a parseResponse bool
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
-
-      content.innerHTML = '';
 
       switch(response.status) {
         case 200:
@@ -19,7 +63,7 @@
           content.innerHTML = `<b>Created</b>`;
           break;
         case 204:
-          content.innerHTML = `<b>Updated (No Content)</b>`;
+          //content.innerHTML = `<b>Updated (No Content)</b>`;
           break;
         case 400:
           content.innerHTML = `<b>Bad Request</b>`;
@@ -37,13 +81,23 @@
           content.innerHTML += `<p>Message: ${obj.message}</p>`;
         } else {
           let amiiboList = obj.returnedAmiibo;
-          for(let a of amiiboList) {
-            let html = '<div>';
-            html += `<h1>${a.name}</h1>`;
-            html += `<img src="${a.image}" /></div>`;
+          let forms = [];
 
-            content.innerHTML += html;
+          let collectionResponse = await fetch('/getCollections', {
+            method: 'get',
+            headers: {
+              'Accept': 'application/json',
+            },
+          });
+
+          let collectionsObj = await collectionResponse.json();
+
+          for(let a of amiiboList) {
+            let newForm = constructHTML(a, collectionsObj.collections);
+            content.appendChild(newForm);
+            forms.push(newForm);
           }
+          setupUI(forms);
         }
       }
     };
@@ -94,8 +148,28 @@
     };
 
     const sendPost = async (form) => {
-      
-    }
+      const action = form.getAttribute('action');
+      const method = form.getAttribute('method');
+
+      const amiiboName = form.querySelector('h1').innerText;
+      const amiiboImage = form.querySelector('img').src;
+      const collectionName = form.querySelector('#collectionSelect').value;
+
+      const formData = `collectionName=${collectionName}&amiiboName=${amiiboName}&amiiboImage=${amiiboImage}`;
+
+      console.log(formData);
+
+      let response = await fetch(action, {
+        method,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+        body: formData,
+      });
+
+      handleResponse(response, response.status != 204);
+    };
 
     // Init method - sets up the submit button on the amiibo form
     // to call getAmiibo which calls requestUpdate

@@ -132,10 +132,54 @@ const addCollection = (request, response, body) => {
   return respondJSON(request, response, responseCode, responseJSON);
 };
 
+const addAmiibo = (request, response, body) => {
+  let responseJSON = {
+    message: 'Amiibo already exists in collection',
+  };
+
+  let collectionName = body.collectionName;
+  let amiiboName = body.amiiboName;
+  let amiiboImage = body.amiiboImage;
+
+  console.log(collectionName);
+
+  if(collectionName === '') {
+    responseJSON.message = 'Invalid Collection';
+    responseJSON.id = 'collectionInvalid';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  for(let c of collections) {
+    console.log(c.name);
+    if(c.name == collectionName) {
+      for(let a of c.content) {
+        console.log(c.content);
+        if(a.name === amiiboName) {
+          responseJSON.id = 'amiiboAlreadyExists';
+          return respondJSON(request, response, 400, responseJSON);
+        }
+      }
+      let amiibo = {
+        'name': amiiboName,
+        'image': amiiboImage,
+      };
+      c.content.push(amiibo);
+      responseJSON.message = `${amiiboName} successfully added to ${collectionName}`;
+      responseJSON.id = 'amiiboAdded'
+      return respondJSON(request, response, 204, responseJSON);
+    }
+  }
+
+  responseJSON.message = 'Collection Could Not Be Found';
+  responseJSON.id = 'collectionNotFound';
+  return respondJSON(request, response, 400, responseJSON);
+};
+
 // public exports
 module.exports = {
   getAmiibo,
   getAmiiboMeta,
+  addAmiibo,
   getCollections,
   getCollectionsMeta,
   addCollection,

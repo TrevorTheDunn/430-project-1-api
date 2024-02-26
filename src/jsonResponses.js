@@ -89,6 +89,9 @@ const getAmiiboMeta = (request, response) => {
 };
 
 // getCollections - takes in a request and response
+// constructs a responseJSON using the collections array
+// sends the request, response, a 200 status code, and the responseJSON
+// to respondJSON
 const getCollections = (request, response) => {
   const responseJSON = {
     collections,
@@ -97,11 +100,21 @@ const getCollections = (request, response) => {
   return respondJSON(request, response, 200, responseJSON);
 };
 
-
+// getCollectionsMeta method - takes in a request and response
+// passes the request and response into respondJSONMeta with a
+// 200 status code
 const getCollectionsMeta = (request, response) => {
   return respondJSONMeta(request, response, 200);
 };
 
+// addCollection method - takes in a request, response, and body
+// creates a responseJSON whose message and id changes depending on the circumstance
+// checks if body has a collectionName, sends a 400 status code and responseJSON indicating this if not
+// loops through collections to check if a collection of that name already exists,
+// if one does it changes the message and id of responseJSON and sends that to respondJSON with a 400 status code
+// if both checks are passed, creates a new JSON for the collection that has a name and content array that is empty
+// pushes the JSON to the array and changes the message and id of responseJSON, then calling
+// respondJSON to pass in request, response, a 201 status code, and responseJSON
 const addCollection = (request, response, body) => {
   const responseJSON = {
     message: 'A name is required.',
@@ -128,10 +141,19 @@ const addCollection = (request, response, body) => {
   collections.push(collectionJSON);
 
   responseJSON.message = 'Collection Created Successfully.';
-
+  responseJSON.id = 'creationSuccessful'
   return respondJSON(request, response, responseCode, responseJSON);
 };
 
+// addAmiibo method - takes in a request, response, and body
+// creates a responseJSON whose message and id changes depending
+// checks if the collection name is empty, passes a responseJSON into respondJSON that indicates
+// loops through collections, if an amiibo of the name passed through the body already exists in the indicated
+// collection, changes the responseJSON id to indicate as such
+// otherwise, creates a new amiibo JSON storing the name and image
+// pushes the amiibo JSON to the collection's content array
+// calls respondJSON with a 204 status request and responseJSON indicating that the amiibo being added was successful
+// if a collection of the passed name couldn't be found, indicates as such
 const addAmiibo = (request, response, body) => {
   let responseJSON = {
     message: 'Amiibo already exists in collection',

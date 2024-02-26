@@ -6,6 +6,9 @@
   
   <script>
 
+    // setupUI function - takes in forms
+    // loops through the forms and creates an addAmiibo function
+    // for the forms that fires off when the form has been submitted
     const setupUI = (forms) => {
       for(let f of forms) {
         const addAmiibo = (e) => {
@@ -18,6 +21,11 @@
       }
     };
 
+    // constructHTML method - takes in an amiibo and collections
+    // creates a form for the amiibo displaying it's name and image
+    // adds a select element and creates option elements for however
+    // many collections there are, as well as a blank one
+    // also creates a submit button for the form
     const constructHTML = (amiibo, collections) => {
       let newForm = document.createElement('form');
       newForm.action = '/addAmiibo';
@@ -52,6 +60,12 @@
     };
 
     // handleResponse method - takes in a response object and a parseResponse bool
+    // prints out the proper message for the status code of the response
+    // if parseResponse is true and there's a message, prints the message
+    // if parseResponse is true and there isn't a message, retrieves the collections
+    // and loops through the returned amiibos, constructing their html and appending
+    // it to the content box, as well as pushing the return form into forms
+    // then calls setupUI passing in the array of forms
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
 
@@ -147,6 +161,10 @@
       handleResponse(response, method === 'GET');
     };
 
+    // sendPost function - takes in a form
+    // retrieves the action, method, amiiboName, amiiboImage, and collectionName from the form
+    // constructs formData and then does a fetch request using the action, method, and formData
+    // calls handleResponse, passing in the response and a bool
     const sendPost = async (form) => {
       const action = form.getAttribute('action');
       const method = form.getAttribute('method');
@@ -168,7 +186,7 @@
         body: formData,
       });
 
-      handleResponse(response, response.status != 204);
+      handleResponse(response, method === 'post');
     };
 
     // Init method - sets up the submit button on the amiibo form

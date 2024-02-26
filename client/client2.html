@@ -5,7 +5,12 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
-
+    // createHTML method - takes in a collection
+    // creates a new form for the collection, displaying the collection's name
+    // if the length of the collection's content is >= 1, loops through all the contents
+    // of the collection and creates a div for each entry, printing it's name and image
+    // and then appending it to the form
+    // returns the created form
     const createHTML = (collection) => {
       let newForm = document.createElement('form');
       newForm.id = collection.name;
@@ -35,6 +40,11 @@
     }
 
     // handleResponse method - takes in a response object and a parseResponse bool
+    // prints out the proper message for the response's status code
+    // if parseResponse is true and there's a message, prints the message
+    // if parseResponse is true and there's no message but collections, 
+    // if the collections isn't empty, loops through and calls createHTML, 
+    // passing in the collection and appending the returned form
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
 
@@ -78,6 +88,9 @@
       }
     };
 
+    // requestUpdate function
+    // does a fetch request using /getCollections and GET
+    // sends the response to handleResponse with a bool
     const requestUpdate = async () => {
       const url = '/getCollections';
       const method = 'GET';
@@ -92,6 +105,11 @@
       handleResponse(response, method === 'GET');
     }
 
+    // sendPost function - takes in a form
+    // retrieves the action, method, and collection name from the field
+    // constructs form data then does a fetch request using the action, method,
+    // and formData
+    // calls handleResponse passing in the response and a bool
     const sendPost = async (form) => {
         const action = form.getAttribute('action');
         const method = form.getAttribute('method');
@@ -112,6 +130,9 @@
         handleResponse(response, method === 'post');
     };
 
+    // init function - sets up the submit button to call addCollection, which calls
+    // sendPost
+    // also calls requestUpdate() to get the collections
     const init = () => {
       const collectionForm = document.querySelector('#collectionsForm');
 

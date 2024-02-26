@@ -186,13 +186,28 @@
         body: formData,
       });
 
-      handleResponse(response, method === 'post');
+      handleResponse(response, response.status != 204);
+    };
+
+    const changePage = async () => {
+      const url = '/collections';
+      const method = 'GET';
+
+      let response = await fetch(url, {
+        method,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      console.log(response);
     };
 
     // Init method - sets up the submit button on the amiibo form
     // to call getAmiibo which calls requestUpdate
     const init = () => {
       const amiiboForm = document.querySelector('#amiiboForm');
+      const collectionsButton = document.querySelector('#collectionsButton');
 
       const getAmiibo = (e) => {
         e.preventDefault();
@@ -200,7 +215,14 @@
         return false;
       }
 
+      const getCollections = (e) => {
+        e.preventDefault();
+        changePage();
+        return false;
+      }
+
       amiiboForm.addEventListener('submit', getAmiibo);
+      collectionsButton.addEventListener('click', getCollections);
     };
 
     // When the window loads, run init.
@@ -210,6 +232,7 @@
 </head>
 <body>
   <section id="top">
+    <button id="collectionsButton">Go to /collections (currently not functional)</button>
     <h3>Amiibo Search</h3>
     <form id="amiiboForm" action="/getAmiibo" method="get">
       <label for="name">Name: </label>

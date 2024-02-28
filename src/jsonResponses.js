@@ -197,11 +197,48 @@ const addAmiibo = (request, response, body) => {
   return respondJSON(request, response, 400, responseJSON);
 };
 
+
+const removeAmiibo = (request, response, body) => {
+  let responseJSON = {
+    message: 'That amiibo does not exist in this collection',
+  };
+
+  let collectionName = body.collectionName;
+  let amiiboName = body.amiiboName;
+  let amiiboImage = body.amiiboImage;
+
+  if(collectionName == '') {
+    responseJSON.message = 'Invalid Collection';
+    responseJSON.id = 'collectionInvalid';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  for(let c of collections) {
+    if(c.name == collectionName) {
+      for(let a of c.content) {
+        if(a.image == amiiboImage) {
+          let removed = c.content.pop(a);
+          responseJSON.message = `${amiiboName} removed from ${collectionName}`;
+          responseJSON.id = 'removalSuccessful';
+          return respondJSON(request, response, 204, responseJSON);
+        }
+      }
+      responseJSON.id = 'amiiboMissing';
+      return respondJSON(request, response, 400, responseJSON);
+    }
+  }
+
+  responseJSON.message = 'Collection could not be found';
+  responseJSON.id = 'collectionMissing';
+  return respondJSON(request, response, 400, responseJSON);
+}
+
 // public exports
 module.exports = {
   getAmiibo,
   getAmiiboMeta,
   addAmiibo,
+  removeAmiibo,
   getCollections,
   getCollectionsMeta,
   addCollection,

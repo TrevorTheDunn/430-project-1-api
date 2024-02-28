@@ -64,6 +64,8 @@ const handlePost = (request, response, parsedUrl) => {
     parseBody(request, response, jsonHandler.addCollection);
   } else if (parsedUrl.pathname === '/addAmiibo') {
     parseBody(request, response, jsonHandler.addAmiibo);
+  } else if (parsedUrl.pathname === '/removeAmiibo') {
+    parseBody(request, response, jsonHandler.removeAmiibo);
   }
 };
 

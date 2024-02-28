@@ -5,6 +5,19 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+
+    const setupUI = (forms) => {
+      for(let f of forms) {
+        const removeAmiibo = (e) => {
+          e.preventDefault();
+          sendPost(f);
+          return false;
+        }
+
+        f.addEventListener('submit', removeAmiibo);
+      }
+    }
+
     // createHTML method - takes in a collection
     // creates a new form for the collection, displaying the collection's name
     // if the length of the collection's content is >= 1, loops through all the contents
@@ -12,31 +25,42 @@
     // and then appending it to the form
     // returns the created form
     const createHTML = (collection) => {
-      let newForm = document.createElement('form');
-      newForm.id = collection.name;
+      let collectionForm = document.createElement('form');
+      collectionForm.id = collection.name;
 
       let collectionName = document.createElement('h1');
       collectionName.innerText = collection.name;
-      newForm.appendChild(collectionName);
+      collectionForm.appendChild(collectionName);
+
+      let amiiboForms = [];
 
       if(collection.content.length >= 1) {
         for(let a of collection.content) {
-          let div = document.createElement('div');
-          div.id = a.name;
+          let amiiboForm = document.createElement('form');
+          amiiboForm.id = `collectionName=${collection.name}&name=${a.name}`;
+          amiiboForm.action = '/removeAmiibo';
+          amiiboForm.method = 'post';
 
           let aName = document.createElement('h3');
           aName.innerText = a.name;
-          div.appendChild(aName);
+          amiiboForm.appendChild(aName);
 
           let aImage = document.createElement('img');
           aImage.src = a.image;
-          div.appendChild(aImage);
+          amiiboForm.appendChild(aImage);
 
-          newForm.appendChild(div);
+          let submitButton = document.createElement('input');
+          submitButton.type = 'submit';
+          submitButton.value = 'Remove from Collection';
+          amiiboForm.appendChild(submitButton);
+
+          collectionForm.appendChild(amiiboForm);
+          amiiboForms.push(amiiboForm);
         }
       }
 
-      return newForm;
+      setupUI(amiiboForms);
+      return collectionForm;
     }
 
     // handleResponse method - takes in a response object and a parseResponse bool
@@ -86,6 +110,8 @@
             }
         }
       }
+
+      if(response.status == 201 || response.status == 204) requestUpdate();
     };
 
     // requestUpdate function
@@ -114,9 +140,20 @@
         const action = form.getAttribute('action');
         const method = form.getAttribute('method');
         
-        const collectionNameField = form.querySelector('#collectionNameField');
+        let formData;
 
-        const formData = `collectionName=${collectionNameField.value}`;
+        if(action == '/addCollection') {
+          const collectionNameField = form.querySelector('#collectionNameField');
+
+          formData = `collectionName=${collectionNameField.value}`;
+        } else if(action == '/removeAmiibo') {
+          const collectionAndAmiiboName = form.id;
+          const amiiboImage = form.querySelector('img').src;
+
+          formData = `${collectionAndAmiiboName}&amiiboImage=${amiiboImage}`;
+        } else {
+          formData = '';
+        }
 
         let response = await fetch(action, {
             method: method,
@@ -127,7 +164,7 @@
             body: formData,
         });
 
-        handleResponse(response, method === 'post');
+        handleResponse(response, response.status != 204);
     };
 
     // init function - sets up the submit button to call addCollection, which calls

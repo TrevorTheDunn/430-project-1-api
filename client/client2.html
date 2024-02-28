@@ -111,7 +111,7 @@
         }
       }
 
-      if(response.status == 201 || response.status == 204) requestUpdate();
+      if(response.status == 204) requestUpdate();
     };
 
     // requestUpdate function
@@ -191,6 +191,7 @@
 </head>
 <body>
   <section id="top">
+    <a href="./client.html">Go to Collections</a>
     <h3>Amiibo Collections</h3>
     <form id="collectionsForm" action="/addCollection" method="post">
         <label for="collectionName">Collection Name: </label>

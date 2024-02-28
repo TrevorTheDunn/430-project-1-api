@@ -225,7 +225,7 @@
       }
 
       amiiboForm.addEventListener('submit', getAmiibo);
-      collectionsButton.addEventListener('click', getCollections);
+      //collectionsButton.addEventListener('click', getCollections);
     };
 
     // When the window loads, run init.
@@ -235,7 +235,7 @@
 </head>
 <body>
   <section id="top">
-    <button id="collectionsButton">Go to /collections (currently not functional)</button>
+    <a href="./client2.html">Go to Collections</a>
     <h3>Amiibo Search</h3>
     <form id="amiiboForm" action="/getAmiibo" method="get">
       <label for="name">Name: </label>

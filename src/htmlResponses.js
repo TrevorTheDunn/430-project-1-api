@@ -2,7 +2,7 @@ const fs = require('fs'); // pull in the file system module
 
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const css = fs.readFileSync(`${__dirname}/../client/style.css`);
-const collection = fs.readFileSync(`${__dirname}/../client/client2.html`);
+const collections = fs.readFileSync(`${__dirname}/../client/client2.html`);
 
 // function to get the index page
 const getIndex = (request, response) => {
@@ -13,7 +13,7 @@ const getIndex = (request, response) => {
 
 const getCollections = (request, response) => {
   response.writeHead(200, { 'Content-Type': 'text/html' });
-  response.write(collection);
+  response.write(collections);
   response.end();
 }
 

@@ -33,6 +33,9 @@
       newForm.innerHTML += `<h1 id="amiiboName">${amiibo.name}<h1>`;
       newForm.innerHTML += `<img id="amiiboImage" src="${amiibo.image}" />`;
 
+      console.log(`Name: ${amiibo.name}`);
+      console.log(`Image: ${amiibo.image}`);
+
       let selector = document.createElement('select');
       selector.id = 'collectionSelect';
 

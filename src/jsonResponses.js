@@ -176,7 +176,7 @@ const addAmiibo = (request, response, body) => {
     if(c.name == collectionName) {
       for(let a of c.content) {
         console.log(c.content);
-        if(a.name === amiiboName) {
+        if(a.image === amiiboImage) {
           responseJSON.id = 'amiiboAlreadyExists';
           return respondJSON(request, response, 400, responseJSON);
         }

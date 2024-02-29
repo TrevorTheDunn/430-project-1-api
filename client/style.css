@@ -7,15 +7,43 @@ html, body {
 
 #top {
   text-align: center;
+  padding-top: 75px;
   margin: 0 auto;
 }
 
 #top h1 {
-  font-size: 2em;
+  font-size: 3em;
+  color: black;
 }
 
 #content {
-  margin-top: 100px;
+  margin-top: 25px;
   font-size: 2em;
   text-align: center;
+  padding: 0;
+  width: 100%;
+}
+
+.amiiboForm {
+  padding: 5px;
+  height: 425px;
+  color: black;
+}
+
+#amiiboName {
+  height: 96px;
+}
+
+#amiiboImage {
+  height: 250px;
+}
+
+#collectionSelect {
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  height: 25px;
+}
+
+.amiiboInput {
+  height: 25px;
 }

@@ -1,6 +1,7 @@
 const url = require('url');
 
 let collections = [];
+let amiibo = [];
 
 // respondJSOn function - takes in a request, response, status, and object
 // writes the response's head using the status code and headers json

@@ -3,7 +3,8 @@
 <head>
   <title>Amiibo Collections</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+
   <script>
 
     const setupUI = (forms) => {
@@ -72,7 +73,7 @@
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
 
-      switch(response.status) {
+      /*switch(response.status) {
         case 200:
           content.innerHTML = `<b>Success</b>`;
           break;
@@ -91,7 +92,7 @@
         default:
           content.innerHTML = `Error code not implemented by client.`;
           break;
-      }
+      }*/
       if(parseResponse) {
         let obj = await response.json();
         console.log(obj);
@@ -190,14 +191,30 @@
   </script>
 </head>
 <body>
+  <nav class="navbar has-shadow is-info is-fixed-top">
+    <div class="navbar-brand">
+      <a class="navbar-item" disabled>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/ed/Amiibo_logo.png" 
+        alt="Amiibo Logo"
+        style="max-height: 50px">
+      </a>
+    </div>
+
+    <div class="navbar-menu" id="nav-links">
+      <div class="navbar-end">
+        <a class="navbar-item" href="./client.html">Search</a>
+        <a class="navbar-item" href="#top">Collections</a>
+      </div>
+    </div>
+  </nav>
   <section id="top">
-    <a href="./client.html">Go to Collections</a>
-    <h3>Amiibo Collections</h3>
+    <h1>Amiibo Collections</h1>
     <form id="collectionsForm" action="/addCollection" method="post">
         <label for="collectionName">Collection Name: </label>
         <input id="collectionNameField" type="text" name="collectionName" />
         <input type="submit" value="Add Collection" />
     </form>
+  </section>
   <section id="content">
   </section>
 </body>

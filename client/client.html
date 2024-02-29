@@ -3,6 +3,7 @@
 <head>
   <title>Amiibo Search</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   
   <script>
 
@@ -27,39 +28,72 @@
     // many collections there are, as well as a blank one
     // also creates a submit button for the form
     const constructHTML = (amiibo, collections) => {
-      let newForm = document.createElement('form');
-      newForm.action = '/addAmiibo';
-      newForm.method = 'post';
-      newForm.innerHTML += `<h1 id="amiiboName">${amiibo.name}<h1>`;
-      newForm.innerHTML += `<img id="amiiboImage" src="${amiibo.image}" />`;
+      const wrapperContainer = document.createElement('div');
+      wrapperContainer.className = 'container';
 
-      console.log(`Name: ${amiibo.name}`);
-      console.log(`Image: ${amiibo.image}`);
+      const columnsWrapper = document.createElement('div');
+      columnsWrapper.className = 'columns';
 
-      let selector = document.createElement('select');
-      selector.id = 'collectionSelect';
-
-      let option = document.createElement('option');
-      option.value = '';
-      option.innerText = '';
-      selector.appendChild(option);
-
-      if(collections.length >= 1) {
-        for(let c of collections) {
-          let newOption = document.createElement('option');
-          newOption.value = `${c.name}`;
-          newOption.innerText = `${c.name}`;
-          selector.appendChild(newOption);
-        }
+      let columns = [];
+      for(let i = 0; i < 5; i++) {
+        const newColumn = document.createElement('div');
+        newColumn.id = `column${i+1}`;
+        newColumn.className = 'column is-one-fifth has-text-centered';
+        columns.push(newColumn);
       }
 
-      newForm.appendChild(selector);
+      let forms = [];
 
-      let submitButton = document.createElement('input');
-      submitButton.type = 'submit';
-      submitButton.value = 'Add To Collection';
-      newForm.appendChild(submitButton);
-      return newForm;
+      let colCount = 0;
+
+      for(let a of amiibo) {
+        let newForm = document.createElement('form');
+        newForm.action = '/addAmiibo';
+        newForm.method = 'post';
+        newForm.className = 'amiiboForm is-info';
+        newForm.innerHTML += `<h5 id="amiiboName">${a.name}<h5>`;
+        newForm.innerHTML += `<img id="amiiboImage" src="${a.image}" /><br>`;
+
+        let selector = document.createElement('select');
+        selector.id = 'collectionSelect';
+
+        let option = document.createElement('option');
+        option.value = '';
+        option.innerText = '';
+        selector.appendChild(option);
+
+        if(collections.length >= 1) {
+          for(let c of collections) {
+            let newOption = document.createElement('option');
+            newOption.value = `${c.name}`;
+            newOption.innerText = `${c.name}`;
+            selector.appendChild(newOption);
+          }
+        }
+
+        newForm.appendChild(selector);
+
+        let submitButton = document.createElement('input');
+        submitButton.type = 'submit';
+        submitButton.className = 'amiiboInput';
+        submitButton.value = 'Add';
+        newForm.appendChild(submitButton);
+        forms.push(newForm);
+
+        if(colCount > 4) colCount = 0;
+        columns[colCount].appendChild(newForm);
+        colCount++;
+      }
+
+      for(let c of columns) {
+        columnsWrapper.appendChild(c);
+      }
+
+      wrapperContainer.appendChild(columnsWrapper);
+
+      setupUI(forms);
+
+      return wrapperContainer;
     };
 
     // handleResponse method - takes in a response object and a parseResponse bool
@@ -71,7 +105,7 @@
     // then calls setupUI passing in the array of forms
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
-
+      /*
       switch(response.status) {
         case 200:
           content.innerHTML = `<b>Success</b>`;
@@ -91,11 +125,11 @@
         default:
           content.innerHTML = `Error code not implemented by client.`;
           break;
-      }
+      }*/
       if(parseResponse) {
         let obj = await response.json();
         if(obj.message) {
-          content.innerHTML += `<p>Message: ${obj.message}</p>`;
+          //content.innerHTML += `<p>Message: ${obj.message}</p>`;
         } else {
           let amiiboList = obj.returnedAmiibo;
           let forms = [];
@@ -109,11 +143,10 @@
 
           let collectionsObj = await collectionResponse.json();
 
-          for(let a of amiiboList) {
-            let newForm = constructHTML(a, collectionsObj.collections);
-            content.appendChild(newForm);
-            forms.push(newForm);
-          }
+          content.innerHTML = '';
+
+          let contentInner = constructHTML(amiiboList, collectionsObj.collections);
+          content.appendChild(contentInner);
           setupUI(forms);
         }
       }
@@ -172,7 +205,7 @@
       const action = form.getAttribute('action');
       const method = form.getAttribute('method');
 
-      const amiiboName = form.querySelector('h1').innerText;
+      const amiiboName = form.querySelector('h5').innerText;
       const amiiboImage = form.querySelector('img').src;
       const collectionName = form.querySelector('#collectionSelect').value;
 
@@ -234,9 +267,26 @@
   </script>
 </head>
 <body>
-  <section id="top">
-    <a href="./client2.html">Go to Collections</a>
-    <h3>Amiibo Search</h3>
+
+  <nav class="navbar has-shadow is-info is-fixed-top">
+    <div class="navbar-brand">
+      <a class="navbar-item" disabled>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/ed/Amiibo_logo.png" 
+        alt="Amiibo Logo"
+        style="max-height: 50px">
+      </a>
+    </div>
+
+    <div class="navbar-menu" id="nav-links">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#top">Search</a>
+        <a class="navbar-item" href="./client2.html">Collections</a>
+      </div>
+    </div>
+  </nav>
+
+  <section id="top" class="container">
+    <h1>Amiibo Search</h1>
     <form id="amiiboForm" action="/getAmiibo" method="get">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
@@ -252,7 +302,9 @@
       </select>
       <input type="submit" value="Get Amiibo" />
     </form>
-  <section id="content">
+  </section>
+  <section id="content" class="section">
+    
   </section>
 </body>
 </html>

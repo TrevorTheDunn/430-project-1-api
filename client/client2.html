@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   <script>
 
+    // setupUI function - sets up the remove buttons
+    // under each amiibo for each collection
     const setupUI = (forms) => {
       for(let f of forms) {
         const removeAmiibo = (e) => {
@@ -100,6 +102,8 @@
       }
     }
 
+    // setupDelete function - sets up the delete buttons on the notifications
+    // to clear the notifications div's contents
     const setupDelete = () => {
       const deleteButton = document.querySelector('#deleteButton');
 
@@ -112,6 +116,9 @@
       deleteButton.addEventListener('click', clearNotifications);
     }
 
+    // createNotification function - creates a notification from a title, message, and color
+    // if there isn't a message, creates a Bulma notification
+    // if there is a message, creates a Bulma message
     const createNotification = (title, message, color) => {
       if(title === '') return;
 
@@ -156,12 +163,8 @@
       setupDelete();
     }
 
-    // handleResponse method - takes in a response object and a parseResponse bool
-    // prints out the proper message for the response's status code
-    // if parseResponse is true and there's a message, prints the message
-    // if parseResponse is true and there's no message but collections, 
-    // if the collections isn't empty, loops through and calls createHTML, 
-    // passing in the collection and appending the returned form
+    // handleResponse method - handles the response and calls appropriate
+    // methods if necessary. begins creation of notifications
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#collectionContent');
 
@@ -227,11 +230,8 @@
       handleResponse(response, method === 'GET');
     }
 
-    // sendPost function - takes in a form
-    // retrieves the action, method, and collection name from the field
-    // constructs form data then does a fetch request using the action, method,
-    // and formData
-    // calls handleResponse passing in the response and a bool
+    // sendPost function - based on the form's action,
+    // passes in different formData to the POST request
     const sendPost = async (form) => {
         const action = form.getAttribute('action');
         const method = form.getAttribute('method');
@@ -265,7 +265,7 @@
 
     // init function - sets up the submit button to call addCollection, which calls
     // sendPost
-    // also calls requestUpdate() to get the collections
+    // also calls requestUpdate() to get the collections every time the page is loaded
     const init = () => {
       const collectionForm = document.querySelector('#collectionsForm');
 

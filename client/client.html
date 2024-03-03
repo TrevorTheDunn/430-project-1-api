@@ -165,10 +165,11 @@
       let notificationMessage = '';
       let notificationColor = '';
 
-      // cases 200 and 201 do nothing so that way it doesn't
-      // default as that would display another message
-      // 200's are returned by the server, however, I decided
-      // notifications don't need to be made for them
+      // cases 200 and 201 are still here so they don't default
+      // they don't have notifications since a) I don't think
+      // 201 is ever returned to this client, only to client2,
+      // and b) I felt a notification for a 200 was unnecessary
+      // since the returned amiibo would be displayed
       switch(response.status) {
         case 200:
           break;
@@ -194,7 +195,6 @@
       if(parseResponse) {
         let obj = await response.json();
         if(obj.message) {
-          //content.innerHTML += `<p>Message: ${obj.message}</p>`;
           notificationMessage = obj.message;
         } else {
           let amiiboList = obj.returnedAmiibo;
@@ -219,9 +219,8 @@
       createNotification(notificationTitle, notificationMessage, notificationColor);
     };
 
-    // requestUpdate method - takes in a form
-    // constructs the query params from the form
-    // performs a fetch request and then calls handleResponse
+    // requestUpdate method - constructs a url from the query
+    // parameters in the form. Performs a get or head request
     const requestUpdate = async (form) => {
       const url = '/getAmiibo';
       const method = 'GET';
@@ -264,10 +263,8 @@
       handleResponse(response, method === 'GET');
     };
 
-    // sendPost function - takes in a form
-    // retrieves the action, method, amiiboName, amiiboImage, and collectionName from the form
-    // constructs formData and then does a fetch request using the action, method, and formData
-    // calls handleResponse, passing in the response and a bool
+    // sendPost function - uses the information in the passed form
+    // to construct formData to pass into the POST request
     const sendPost = async (form) => {
       const action = form.getAttribute('action');
       const method = form.getAttribute('method');
@@ -277,8 +274,6 @@
       const collectionName = form.querySelector('#collectionSelect').value;
 
       const formData = `collectionName=${collectionName}&amiiboName=${amiiboName}&amiiboImage=${amiiboImage}`;
-
-      console.log(formData);
 
       let response = await fetch(action, {
         method,
@@ -313,7 +308,6 @@
   </script>
 </head>
 <body>
-
   <nav class="navbar has-shadow is-info is-fixed-top">
     <div class="navbar-brand">
       <a class="navbar-item" disabled>
@@ -322,7 +316,6 @@
         style="max-height: 50px">
       </a>
     </div>
-
     <div class="navbar-menu" id="nav-links">
       <div class="navbar-end">
         <a class="navbar-item" href="#top">Search</a>
@@ -330,7 +323,6 @@
       </div>
     </div>
   </nav>
-
   <section id="top" class="container">
     <h1>Amiibo Search</h1>
     <form id="amiiboForm" action="/getAmiibo" method="get">
@@ -349,7 +341,7 @@
         <option value="card">Card</option>
         <option value="yarn">Yarn</option>
       </select><br>
-      <input type="submit" value="Get Amiibo" />
+      <button id="bulmaButton" class="button is-info" type="submit">Get Amiibo</button>
     </form>
   </section>
   <section id="content" class="section">

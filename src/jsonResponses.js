@@ -1,7 +1,6 @@
 const url = require('url');
 
 const collections = [];
-// const amiibo = [];
 
 // respondJSOn function - takes in a request, response, status, and object
 // writes the response's head using the status code and headers json
@@ -145,18 +144,6 @@ const addCollection = (request, response, body) => {
   return respondJSON(request, response, responseCode, responseJSON);
 };
 
-// const checkForAmiibo = (collectionName, amiiboImage) => {
-//   let amiiboPresent = false;
-
-//   collections.forEach((c) => {
-//     if (c.name === collectionName) {
-//       c.content.forEach((a) => {
-//         if (a.image === amiiboImage) { amiiboPresent = true; }
-//       });
-//     }
-//   });
-// };
-
 // addAmiibo method - takes in a request, response, and body
 // creates a responseJSON whose message and id changes depending
 // checks if the collection name is empty, passes a responseJSON
@@ -208,6 +195,11 @@ const addAmiibo = (request, response, body) => {
   return respondJSON(request, response, 400, responseJSON);
 };
 
+// removeAmiibo function - removes the inidicated amiibo from
+// the indicated collection
+// if the collection's name is invalid, the amiibo couldn't be found,
+// or the collection couldn't be found, indicates as such using
+// responseJSON and a proper status code
 const removeAmiibo = (request, response, body) => {
   const responseJSON = {
     message: 'That amiibo does not exist in this collection',

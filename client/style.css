@@ -83,9 +83,12 @@ footer {
     width: 100%;
     bottom: 0;
     text-align: center;
+    min-height: 4%;
 }
 
-footer .column {
-    padding-bottom: 0;
-    margin-top: 10px;
+#notifications {
+    max-width: 20%;
+    position: fixed;
+    bottom: 6%;
+    right: 1%;
 }

@@ -25,8 +25,7 @@
     // and then appending it to the form
     // returns the created form
     const createHTML = (collections, content) => {
-      content.innerHTMl = '';
-
+      content.innerHTML = '';
       for(let c of collections) {
         let collectionsForm = document.createElement('form');
         collectionsForm.id = c.name;
@@ -101,6 +100,62 @@
       }
     }
 
+    const setupDelete = () => {
+      const deleteButton = document.querySelector('#deleteButton');
+
+      const clearNotifications = () => {
+        const notifications = document.querySelector('#notifications');
+        notifications.innerHTML = '';
+        return false;
+      }
+
+      deleteButton.addEventListener('click', clearNotifications);
+    }
+
+    const createNotification = (title, message, color) => {
+      if(title === '') return;
+
+      const notifications = document.querySelector('#notifications');
+      notifications.innerHTML = '';
+
+      if(message != '') {
+        let newMessage = document.createElement('article');
+        newMessage.classList = `message ${color}`;
+        newMessage.id = 'message';
+
+        let messageHeader = document.createElement('div');
+        messageHeader.classList = 'message-header';
+
+        let messageTitle = document.createElement('p');
+        messageTitle.innerText = title;
+        messageHeader.appendChild(messageTitle);
+
+        let deleteButton = document.createElement('button');
+        deleteButton.classList = 'delete';
+        deleteButton.id = 'deleteButton';
+        messageHeader.appendChild(deleteButton);
+
+        let messageBody = document.createElement('div');
+        messageBody.classList = 'message-body';
+        messageBody.innerText = message;
+
+        newMessage.appendChild(messageHeader);
+        newMessage.appendChild(messageBody);
+        notifications.appendChild(newMessage);
+      } else {
+        let newNotification = document.createElement('div');
+        newNotification.classList = `notification ${color}`;
+        newNotification.id = 'notification';
+
+        newNotification.innerHTML = `<button class='delete' id='deleteButton'>
+        </button>${title}`;
+
+        notifications.appendChild(newNotification);
+      }
+
+      setupDelete();
+    }
+
     // handleResponse method - takes in a response object and a parseResponse bool
     // prints out the proper message for the response's status code
     // if parseResponse is true and there's a message, prints the message
@@ -109,58 +164,50 @@
     // passing in the collection and appending the returned form
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#collectionContent');
-      content.innerHTML = '';
 
-      //const notification = document.createElement('div');
-      //notification.className = 'notification';
-      //notification.id = 'responseNotification';
+      let notificationTitle = '';
+      let notificationMessage = '';
+      let notificationColor = '';
 
       switch(response.status) {
         case 200:
-          //notification.className += ' is-success';
-          //notification.innerHTML = `<b>Success</b>`;
           break;
         case 201:
-          //notification.className += ' is-success';
-          //notification.innerHTML = `<b>Created</b>`;
+          notificationTitle = 'Collection Created';
+          notificationColor = 'is-success';
           break;
         case 204:
-          //notification.className += ' is-success';
-          //content.innerHTML = `<b>Updated (No Content)</b>`;
+          notificationTitle = 'Updated Collection';
+          notificationColor = 'is-success';
           break;
         case 400:
-          //notification.className += ' is-danger';
-          //notification.innerHTML = `<b>Bad Request</b>`;
+          notificationTitle = 'Bad Request';
+          notificationColor = 'is-danger';
           break;
         case 404:
-          //notification.className += ' is-danger';
-          //notification.innerHTML = `<b>Not Found</b>`;
+          notificationTitle = 'Not Found';
+          notificationColor = 'is-danger';
           break;
         default:
-          //notification.className += ' is-warning';
-          //notification.innerHTML = `Error code not implemented by client.`;
+          notificationTitle = 'Error code not implemented by client.';
+          notificationColor = 'is-warning';
           break;
       }
       if(parseResponse) {
         let obj = await response.json();
-        console.log(obj);
         if(obj.message) {
-            //content.innerHTML += `<p>Message: ${obj.message}</p>`;
-            if(response.status === 201) {
-                requestUpdate();
-            }
+            notificationMessage = obj.message;
         } else if(obj.collections) {
             let collections = obj.collections;
-            console.log(collections);
             if(collections.length >= 1) {
                 createHTML(collections, content);
             }
         }
       }
 
-      //const notifications = document.querySelector('#notifications');
-      //if (notification.innerHTML != '') notifications.appendChild(notification);
-      if(response.status == 204) requestUpdate();
+      createNotification(notificationTitle, notificationMessage, notificationColor);
+
+      if(response.status == 204 || response.status == 201) requestUpdate();
     };
 
     // requestUpdate function
@@ -265,8 +312,6 @@
   </section>
   <section id="collectionContent">
   </section>
-  <section id="notifications">   
-  </section>
   <footer style="background-color: hsl(204, 86%, 53%);">
     <div class="columns">
       <div class="column is-one-third">
@@ -276,9 +321,11 @@
         <h3>Utilizes Amiibo API</h3>
       </div>
       <div class="column is-one-third">
-        <h3>Amiibo Logo Source: <a href="https://en.wikipedia.org/wiki/File:Amiibo_logo.png">Wikipedia</h3>
+        <h3>Amiibo Logo Source: <a href="https://en.wikipedia.org/wiki/File:Amiibo_logo.png">Wikipedia</a></h3>
       </div>
     </div>
   </footer>
+  <section id="notifications">   
+  </section>
 </body>
 </html>

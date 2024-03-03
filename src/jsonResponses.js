@@ -125,7 +125,7 @@ const addCollection = (request, response, body) => {
   }
 
   for (let i = 0; i < collections.length; i++) {
-    let c = collections[i];
+    const c = collections[i];
     if (c.name === body.collectionName) {
       responseJSON.message = 'A collection with this name already exists.';
       responseJSON.id = 'alreadyExists';
@@ -224,7 +224,7 @@ const removeAmiibo = (request, response, body) => {
   }
 
   for (let i = 0; i < collections.length; i++) {
-    let c = collections[i];
+    const c = collections[i];
     if (c.name === collectionName) {
       for (let a = 0; a < c.content.length; a++) {
         if (c.content[a].image === amiiboImage) {

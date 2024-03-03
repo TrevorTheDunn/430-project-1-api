@@ -92,35 +92,110 @@
       return wrapperContainer;
     };
 
+    // sets up a notification's delete button to clear
+    // the contents of the notifications section
+    const setupDelete = () => {
+      const deletebutton = document.querySelector('#deleteButton');
+
+      const clearNotifications = () => {
+        const notifications = document.querySelector('#notifications');
+        notifications.innerHTML = '';
+        return false;
+      }
+
+      deleteButton.addEventListener('click', clearNotifications);
+    }
+
+    // function that creates a notification using a title, an optional message, and a color
+    // if there is no message body, creates a bulma notification
+    // if there is a message body, creates a bulma message
+    const createNotification = (title, message, color) => {
+      if(title === '') return;
+
+      const notifications = document.querySelector('#notifications');
+
+      notifications.innerHTML = '';
+
+      if(title != '') {
+        if(message != '') {
+          let newMessage = document.createElement('article');
+          newMessage.classList = `message ${color}`;
+          newMessage.id = 'message';
+
+          let messageHeader = document.createElement('div');
+          messageHeader.classList = 'message-header';
+
+          let messageTitle = document.createElement('p');
+          messageTitle.innerText = title;
+          messageHeader.appendChild(messageTitle);
+
+          let deleteButton = document.createElement('button');
+          deleteButton.classList = 'delete';
+          deleteButton.id = 'deleteButton';
+          messageHeader.appendChild(deleteButton);
+
+          let messageBody = document.createElement('div');
+          messageBody.classList = 'message-body';
+          messageBody.innerText = message;
+
+          newMessage.appendChild(messageHeader);
+          newMessage.appendChild(messageBody);
+          notifications.appendChild(newMessage);
+        } else {
+          let newNotification = document.createElement('div');
+          newNotification.classList = `notification ${color}`
+          newNotification.id = 'notification';
+
+          newNotification.innerHTML = `<button class='delete' id='deleteButton'>
+          </button>${title}`;
+
+          notifications.appendChild(newNotification);
+        }
+      }
+
+      setupDelete();
+    }
+
     // handles the response and calls the appropriate method if necessary
     // also creates notifications
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
-      /*
+
+      let notificationTitle = '';
+      let notificationMessage = '';
+      let notificationColor = '';
+
+      // cases 200 and 201 do nothing so that way it doesn't
+      // default as that would display another message
+      // 200's are returned by the server, however, I decided
+      // notifications don't need to be made for them
       switch(response.status) {
         case 200:
-          content.innerHTML = `<b>Success</b>`;
           break;
         case 201:
-          content.innerHTML = `<b>Created</b>`;
           break;
         case 204:
-          //content.innerHTML = `<b>Updated (No Content)</b>`;
+          notificationTitle = 'Added to Collection';
+          notificationColor = 'is-success';
           break;
         case 400:
-          content.innerHTML = `<b>Bad Request</b>`;
+          notificationTitle = 'Bad Request';
+          notificationColor = 'is-danger';
           break;
         case 404:
-          content.innerHTML = `<b>Not Found</b>`;
+          notificationTitle = 'Not Found';
+          notificationColor = 'is-danger';
           break;
         default:
-          content.innerHTML = `Error code not implemented by client.`;
+          notificationTitle = `Error code not implemented by client.`;
+          notificationColor = 'is-warning';
           break;
-      }*/
+      }
       if(parseResponse) {
         let obj = await response.json();
         if(obj.message) {
           //content.innerHTML += `<p>Message: ${obj.message}</p>`;
+          notificationMessage = obj.message;
         } else {
           let amiiboList = obj.returnedAmiibo;
           let forms = [];
@@ -141,6 +216,7 @@
           setupUI(forms);
         }
       }
+      createNotification(notificationTitle, notificationMessage, notificationColor);
     };
 
     // requestUpdate method - takes in a form
@@ -287,9 +363,11 @@
         <h3>Utilizes Amiibo API</h3>
       </div>
       <div class="column is-one-third">
-        <h3>Amiibo Logo Source: <a href="https://en.wikipedia.org/wiki/File:Amiibo_logo.png">Wikipedia</h3>
+        <h3>Amiibo Logo Source: <a href="https://en.wikipedia.org/wiki/File:Amiibo_logo.png">Wikipedia</a></h3>
       </div>
     </div>
   </footer>
+  <section id="notifications">
+  </section>
 </body>
 </html>

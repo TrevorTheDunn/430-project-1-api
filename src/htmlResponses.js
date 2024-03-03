@@ -11,11 +11,12 @@ const getIndex = (request, response) => {
   response.end();
 };
 
+// function to get the collections page
 const getCollections = (request, response) => {
   response.writeHead(200, { 'Content-Type': 'text/html' });
   response.write(collections);
   response.end();
-}
+};
 
 // function to get css page
 const getCSS = (request, response) => {

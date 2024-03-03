@@ -1,49 +1,91 @@
 html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 #top {
-  text-align: center;
-  padding-top: 75px;
-  margin: 0 auto;
+    text-align: center;
+    padding-top: 67px;
+    margin: 0 auto;
+    align-content: center;
 }
 
 #top h1 {
-  font-size: 3em;
-  color: black;
+    font-size: 3em;
+    color: black;
 }
 
-#content {
-  margin-top: 25px;
-  font-size: 2em;
-  text-align: center;
-  padding: 0;
-  width: 100%;
+#textInput {
+    text-align: right;
+    width: 275px;
+    margin: 0 auto;
+    position: relative;
+}
+
+#collectionContent {
+    margin-right: 5%;
+    margin-left: 5%;
+    margin-bottom: 66px;
+    padding-bottom: 66px;
+}
+
+#collection {
+    margin-top: 3%;
+    margin-bottom: 3%;
 }
 
 .amiiboForm {
-  padding: 5px;
-  height: 425px;
-  color: black;
+    padding: 5px;
+    height: 375px;
+    color: black;
+    text-align: center;
+    align-items: center;
 }
 
 #amiiboName {
-  height: 96px;
+    height: 48px;
+    margin-bottom: 0;
 }
 
 #amiiboImage {
-  height: 250px;
+    height: 250px;
 }
 
 #collectionSelect {
-  padding-bottom: 0px;
-  margin-bottom: 0px;
-  height: 25px;
+    height: 25px;
 }
 
-.amiiboInput {
-  height: 25px;
+#bulmaButton {
+    height: 25px;
+    max-width: 250px;
+    text-align: center;
+}
+
+#removeButton {
+    height: 25px;
+    max-width: 250px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.footer {
+    bottom: 0;
+    padding: 0;
+    align-content: space-between;
+}
+
+footer {
+    color: white;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    text-align: center;
+}
+
+footer .column {
+    padding-bottom: 0;
+    margin-top: 10px;
 }

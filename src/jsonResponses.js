@@ -1,7 +1,7 @@
 const url = require('url');
 
-let collections = [];
-let amiibo = [];
+const collections = [];
+// const amiibo = [];
 
 // respondJSOn function - takes in a request, response, status, and object
 // writes the response's head using the status code and headers json
@@ -29,7 +29,7 @@ const respondJSONMeta = (request, response, status) => {
 
 // notFound function - takes in a request and response
 // creates a JSON with a message and id to indicate the page wasn't found
-// passes the request and response to respondJSON with a 404 status code and 
+// passes the request and response to respondJSON with a 404 status code and
 // the responseJSON object
 const notFound = (request, response) => {
   const responseJSON = {
@@ -58,14 +58,14 @@ const getAmiibo = async (request, response) => {
   const startUrl = 'https://amiiboapi.com/api/amiibo';
   let searchUrl = '';
 
-  let parsedUrl = url.parse(request.url);
+  const parsedUrl = url.parse(request.url);
 
   searchUrl = `${startUrl}?${parsedUrl.query}`;
 
-  let apiResponse = await fetch(searchUrl);
-  let obj = await apiResponse.json();
+  const apiResponse = await fetch(searchUrl);
+  const obj = await apiResponse.json();
 
-  if(obj.amiibo.length < 1) {
+  if (obj.amiibo.length < 1) {
     const responseJSON = {
       message: 'No Results For The Search Queries',
       id: 'noResults',
@@ -73,7 +73,7 @@ const getAmiibo = async (request, response) => {
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  let returnedAmiibo = obj.amiibo;
+  const returnedAmiibo = obj.amiibo;
 
   const responseJSON = {
     returnedAmiibo,
@@ -85,9 +85,7 @@ const getAmiibo = async (request, response) => {
 // getAmiiboMeta - takes in a request and response
 // calls respondJSONMeta and passes the request, response, and
 // a 200 status code
-const getAmiiboMeta = (request, response) => {
-  return respondJSONMeta(request, response, 200);
-};
+const getAmiiboMeta = (request, response) => respondJSONMeta(request, response, 200);
 
 // getCollections - takes in a request and response
 // constructs a responseJSON using the collections array
@@ -104,16 +102,16 @@ const getCollections = (request, response) => {
 // getCollectionsMeta method - takes in a request and response
 // passes the request and response into respondJSONMeta with a
 // 200 status code
-const getCollectionsMeta = (request, response) => {
-  return respondJSONMeta(request, response, 200);
-};
+const getCollectionsMeta = (request, response) => respondJSONMeta(request, response, 200);
 
 // addCollection method - takes in a request, response, and body
 // creates a responseJSON whose message and id changes depending on the circumstance
-// checks if body has a collectionName, sends a 400 status code and responseJSON indicating this if not
-// loops through collections to check if a collection of that name already exists,
-// if one does it changes the message and id of responseJSON and sends that to respondJSON with a 400 status code
-// if both checks are passed, creates a new JSON for the collection that has a name and content array that is empty
+// checks if body has a collectionName, sends a 400 status code and responseJSON
+// indicating this if not loops through collections to check if a
+// collection of that name already exists, if one does it changes the message
+// and id of responseJSON and sends that to respondJSON with a 400 status code
+// if both checks are passed, creates a new JSON for the collection
+// that has a name and content array that is empty
 // pushes the JSON to the array and changes the message and id of responseJSON, then calling
 // respondJSON to pass in request, response, a 201 status code, and responseJSON
 const addCollection = (request, response, body) => {
@@ -121,74 +119,86 @@ const addCollection = (request, response, body) => {
     message: 'A name is required.',
   };
 
-  if(!body.collectionName) {
+  if (!body.collectionName) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  for(let c of collections) {
-    if(c.name === body.collectionName) {
+  for (let i = 0; i < collections.length; i++) {
+    let c = collections[i];
+    if (c.name === body.collectionName) {
       responseJSON.message = 'A collection with this name already exists.';
       responseJSON.id = 'alreadyExists';
       return respondJSON(request, response, 400, responseJSON);
     }
   }
 
-  let responseCode = 201;
-  let collectionJSON = {
-    'name': body.collectionName,
-    'content': [],
+  const responseCode = 201;
+  const collectionJSON = {
+    name: body.collectionName,
+    content: [],
   };
   collections.push(collectionJSON);
 
   responseJSON.message = 'Collection Created Successfully.';
-  responseJSON.id = 'creationSuccessful'
+  responseJSON.id = 'creationSuccessful';
   return respondJSON(request, response, responseCode, responseJSON);
 };
 
+// const checkForAmiibo = (collectionName, amiiboImage) => {
+//   let amiiboPresent = false;
+
+//   collections.forEach((c) => {
+//     if (c.name === collectionName) {
+//       c.content.forEach((a) => {
+//         if (a.image === amiiboImage) { amiiboPresent = true; }
+//       });
+//     }
+//   });
+// };
+
 // addAmiibo method - takes in a request, response, and body
 // creates a responseJSON whose message and id changes depending
-// checks if the collection name is empty, passes a responseJSON into respondJSON that indicates
-// loops through collections, if an amiibo of the name passed through the body already exists in the indicated
-// collection, changes the responseJSON id to indicate as such
+// checks if the collection name is empty, passes a responseJSON
+// into respondJSON that indicates
+// loops through collections, if an amiibo of the name passed
+// through the body already exists in the indicated collection,
+// changes the responseJSON id to indicate as such
 // otherwise, creates a new amiibo JSON storing the name and image
 // pushes the amiibo JSON to the collection's content array
-// calls respondJSON with a 204 status request and responseJSON indicating that the amiibo being added was successful
+// calls respondJSON with a 204 status request and responseJSON
+// indicating that the amiibo being added was successful
 // if a collection of the passed name couldn't be found, indicates as such
 const addAmiibo = (request, response, body) => {
-  let responseJSON = {
+  const responseJSON = {
     message: 'Amiibo already exists in collection',
   };
 
-  let collectionName = body.collectionName;
-  let amiiboName = body.amiiboName;
-  let amiiboImage = body.amiiboImage;
+  const { collectionName } = body;
+  const { amiiboName } = body;
+  const { amiiboImage } = body;
 
-  console.log(collectionName);
-
-  if(collectionName === '') {
+  if (collectionName === '') {
     responseJSON.message = 'Invalid Collection';
     responseJSON.id = 'collectionInvalid';
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  for(let c of collections) {
-    console.log(c.name);
-    if(c.name == collectionName) {
-      for(let a of c.content) {
-        console.log(c.content);
-        if(a.image === amiiboImage) {
+  for (let i = 0; i < collections.length; i++) {
+    if (collections[i].name === collectionName) {
+      for (let a = 0; a < collections[i].content.length; a++) {
+        if (collections[i].content[a].image === amiiboImage) {
           responseJSON.id = 'amiiboAlreadyExists';
           return respondJSON(request, response, 400, responseJSON);
         }
       }
-      let amiibo = {
-        'name': amiiboName,
-        'image': amiiboImage,
+      const amiibo = {
+        name: amiiboName,
+        image: amiiboImage,
       };
-      c.content.push(amiibo);
+      collections[i].content.push(amiibo);
       responseJSON.message = `${amiiboName} successfully added to ${collectionName}`;
-      responseJSON.id = 'amiiboAdded'
+      responseJSON.id = 'amiiboAdded';
       return respondJSON(request, response, 204, responseJSON);
     }
   }
@@ -198,33 +208,33 @@ const addAmiibo = (request, response, body) => {
   return respondJSON(request, response, 400, responseJSON);
 };
 
-
 const removeAmiibo = (request, response, body) => {
-  let responseJSON = {
+  const responseJSON = {
     message: 'That amiibo does not exist in this collection',
   };
 
-  let collectionName = body.collectionName;
-  let amiiboName = body.amiiboName;
-  let amiiboImage = body.amiiboImage;
+  const { collectionName } = body;
+  const { amiiboName } = body;
+  const { amiiboImage } = body;
 
-  if(collectionName == '') {
+  if (collectionName === '') {
     responseJSON.message = 'Invalid Collection';
     responseJSON.id = 'collectionInvalid';
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  for(let c of collections) {
-    if(c.name == collectionName) {
-      for(let a of c.content) {
-        if(a.image == amiiboImage) {
-          let removed = c.content.pop(a);
-          responseJSON.message = `${amiiboName} removed from ${collectionName}`;
+  for (let i = 0; i < collections.length; i++) {
+    let c = collections[i];
+    if (c.name === collectionName) {
+      for (let a = 0; a < c.content.length; a++) {
+        if (c.content[a].image === amiiboImage) {
+          c.content.pop(c.content[a]);
+          responseJSON.message = `${amiiboName} removed form ${collectionName}`;
           responseJSON.id = 'removalSuccessful';
           return respondJSON(request, response, 204, responseJSON);
         }
       }
-      responseJSON.id = 'amiiboMissing';
+      response.id = 'amiiboMissing';
       return respondJSON(request, response, 400, responseJSON);
     }
   }
@@ -232,7 +242,7 @@ const removeAmiibo = (request, response, body) => {
   responseJSON.message = 'Collection could not be found';
   responseJSON.id = 'collectionMissing';
   return respondJSON(request, response, 400, responseJSON);
-}
+};
 
 // public exports
 module.exports = {

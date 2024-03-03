@@ -7,9 +7,7 @@
   
   <script>
 
-    // setupUI function - takes in forms
-    // loops through the forms and creates an addAmiibo function
-    // for the forms that fires off when the form has been submitted
+    // sets up the 'addAmiibo' buttons
     const setupUI = (forms) => {
       for(let f of forms) {
         const addAmiibo = (e) => {
@@ -22,11 +20,8 @@
       }
     };
 
-    // constructHTML method - takes in an amiibo and collections
-    // creates a form for the amiibo displaying it's name and image
-    // adds a select element and creates option elements for however
-    // many collections there are, as well as a blank one
-    // also creates a submit button for the form
+    // creates forms for each amiibo with a name, picture, 
+    // dropdown for collections, and an addAmiibo button
     const constructHTML = (amiibo, collections) => {
       const wrapperContainer = document.createElement('div');
       wrapperContainer.className = 'container';
@@ -35,10 +30,10 @@
       columnsWrapper.className = 'columns';
 
       let columns = [];
-      for(let i = 0; i < 5; i++) {
+      for(let i = 0; i < 4; i++) {
         const newColumn = document.createElement('div');
         newColumn.id = `column${i+1}`;
-        newColumn.className = 'column is-one-fifth has-text-centered';
+        newColumn.className = 'column is-one-fourth has-text-centered';
         columns.push(newColumn);
       }
 
@@ -51,7 +46,7 @@
         newForm.action = '/addAmiibo';
         newForm.method = 'post';
         newForm.className = 'amiiboForm is-info';
-        newForm.innerHTML += `<h5 id="amiiboName">${a.name}<h5>`;
+        newForm.innerHTML += `<h5 id="amiiboName" class="title is-5">${a.name}<h5>`;
         newForm.innerHTML += `<img id="amiiboImage" src="${a.image}" /><br>`;
 
         let selector = document.createElement('select');
@@ -73,14 +68,15 @@
 
         newForm.appendChild(selector);
 
-        let submitButton = document.createElement('input');
+        let submitButton = document.createElement('button');
         submitButton.type = 'submit';
-        submitButton.className = 'amiiboInput';
-        submitButton.value = 'Add';
+        submitButton.className = 'amiiboInput button is-success';
+        submitButton.innerText = 'Add';
+        submitButton.id = 'bulmaButton';
         newForm.appendChild(submitButton);
         forms.push(newForm);
 
-        if(colCount > 4) colCount = 0;
+        if(colCount > 3) colCount = 0;
         columns[colCount].appendChild(newForm);
         colCount++;
       }
@@ -96,13 +92,8 @@
       return wrapperContainer;
     };
 
-    // handleResponse method - takes in a response object and a parseResponse bool
-    // prints out the proper message for the status code of the response
-    // if parseResponse is true and there's a message, prints the message
-    // if parseResponse is true and there isn't a message, retrieves the collections
-    // and loops through the returned amiibos, constructing their html and appending
-    // it to the content box, as well as pushing the return form into forms
-    // then calls setupUI passing in the array of forms
+    // handles the response and calls the appropriate method if necessary
+    // also creates notifications
     const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
       /*
@@ -225,20 +216,6 @@
       handleResponse(response, response.status != 204);
     };
 
-    const changePage = async () => {
-      const url = '/collections';
-      const method = 'GET';
-
-      let response = await fetch(url, {
-        method,
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-
-      console.log(response);
-    };
-
     // Init method - sets up the submit button on the amiibo form
     // to call getAmiibo which calls requestUpdate
     const init = () => {
@@ -251,14 +228,7 @@
         return false;
       }
 
-      const getCollections = (e) => {
-        e.preventDefault();
-        changePage();
-        return false;
-      }
-
       amiiboForm.addEventListener('submit', getAmiibo);
-      //collectionsButton.addEventListener('click', getCollections);
     };
 
     // When the window loads, run init.
@@ -288,23 +258,38 @@
   <section id="top" class="container">
     <h1>Amiibo Search</h1>
     <form id="amiiboForm" action="/getAmiibo" method="get">
-      <label for="name">Name: </label>
-      <input id="nameField" type="text" name="name" />
-      <label for="gameSeries">Game Series: </label>
-      <input id="gameSeriesField" type="text" name="gameSeries" />
-      <label for="amiiboSeries">Amiibo Series: </label>
-      <input id="amiiboSeriesField" type="text" name="amiiboSeries" />
-      <select id="typeSelect">
+      <div id="textInput">
+        <label for="name">Name: </label>
+        <input id="nameField" type="text" name="name" /><br>
+        <label for="gameSeries">Game Series: </label>
+        <input id="gameSeriesField" type="text" name="gameSeries" /><br>
+        <label for="amiiboSeries">Amiibo Series: </label>
+        <input id="amiiboSeriesField" type="text" name="amiiboSeries" /><br>
+      </div>
+      <label for="type">Type: </label>  
+      <select id="typeSelect" name="type">
         <option value="">Any</option>
         <option value="figure">Figure</option>
         <option value="card">Card</option>
         <option value="yarn">Yarn</option>
-      </select>
+      </select><br>
       <input type="submit" value="Get Amiibo" />
     </form>
   </section>
   <section id="content" class="section">
-    
   </section>
+  <footer style="background-color: hsl(204, 86%, 53%);">
+    <div class="columns">
+      <div class="column is-one-third">
+        <h3>Amiibo Collector by Trevor Dunn</h3>
+      </div>
+      <div class="column is-one-third">
+        <h3>Utilizes Amiibo API</h3>
+      </div>
+      <div class="column is-one-third">
+        <h3>Amiibo Logo Source: <a href="https://en.wikipedia.org/wiki/File:Amiibo_logo.png">Wikipedia</h3>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

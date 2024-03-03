@@ -4,7 +4,6 @@
   <title>Amiibo Collections</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-
   <script>
 
     const setupUI = (forms) => {
@@ -25,43 +24,81 @@
     // of the collection and creates a div for each entry, printing it's name and image
     // and then appending it to the form
     // returns the created form
-    const createHTML = (collection) => {
-      let collectionForm = document.createElement('form');
-      collectionForm.id = collection.name;
+    const createHTML = (collections, content) => {
+      content.innerHTMl = '';
 
-      let collectionName = document.createElement('h1');
-      collectionName.innerText = collection.name;
-      collectionForm.appendChild(collectionName);
+      for(let c of collections) {
+        let collectionsForm = document.createElement('form');
+        collectionsForm.id = c.name;
+        collectionsForm.className = 'collection';
 
-      let amiiboForms = [];
+        let collectionName = document.createElement('h3');
+        collectionName.innerText = c.name;
+        collectionName.className = 'title is-3';
+        collectionsForm.appendChild(collectionName);
 
-      if(collection.content.length >= 1) {
-        for(let a of collection.content) {
+        const wrapperContainer = document.createElement('div');
+        wrapperContainer.className = 'container';
+
+        const columnsWrapper = document.createElement('div');
+        columnsWrapper.className = 'columns';
+
+        let columns = [];
+        for(let i = 0; i < 4; i++) {
+          const newColumn = document.createElement('div');
+          newColumn.id = `column${i+1}`;
+          newColumn.className = 'column is-one-fourth has-text-centered';
+          columns.push(newColumn);
+        }
+
+        let amiiboForms = [];
+
+        let colCount = 0;
+
+        for(let a of c.content) {
           let amiiboForm = document.createElement('form');
-          amiiboForm.id = `collectionName=${collection.name}&name=${a.name}`;
+          amiiboForm.id = `collectionName=${c.name}&name=${a.name}`;
           amiiboForm.action = '/removeAmiibo';
           amiiboForm.method = 'post';
 
-          let aName = document.createElement('h3');
+          let aName = document.createElement('h5');
           aName.innerText = a.name;
+          aName.id = 'amiiboName';
+          aName.className = 'title is-5';
           amiiboForm.appendChild(aName);
 
           let aImage = document.createElement('img');
+          aImage.id = 'amiiboImage';
           aImage.src = a.image;
           amiiboForm.appendChild(aImage);
 
-          let submitButton = document.createElement('input');
+          amiiboForm.innerHTML += '<br>';
+
+          let submitButton = document.createElement('button');
+          submitButton.id = 'removeButton';
           submitButton.type = 'submit';
-          submitButton.value = 'Remove from Collection';
+          submitButton.innerText = 'Remove';
+          submitButton.className = 'button is-danger';
           amiiboForm.appendChild(submitButton);
 
-          collectionForm.appendChild(amiiboForm);
           amiiboForms.push(amiiboForm);
-        }
-      }
 
-      setupUI(amiiboForms);
-      return collectionForm;
+          if(colCount > 3) colCount = 0;
+          columns[colCount].appendChild(amiiboForm);
+          colCount++;
+        }
+
+        for(let c of columns) {
+          columnsWrapper.appendChild(c);
+        }
+
+        wrapperContainer.appendChild(columnsWrapper);
+        collectionsForm.appendChild(wrapperContainer);
+
+        content.appendChild(collectionsForm);
+
+        setupUI(amiiboForms);
+      }
     }
 
     // handleResponse method - takes in a response object and a parseResponse bool
@@ -71,33 +108,44 @@
     // if the collections isn't empty, loops through and calls createHTML, 
     // passing in the collection and appending the returned form
     const handleResponse = async (response, parseResponse) => {
-      const content = document.querySelector('#content');
+      const content = document.querySelector('#collectionContent');
+      content.innerHTML = '';
 
-      /*switch(response.status) {
+      //const notification = document.createElement('div');
+      //notification.className = 'notification';
+      //notification.id = 'responseNotification';
+
+      switch(response.status) {
         case 200:
-          content.innerHTML = `<b>Success</b>`;
+          //notification.className += ' is-success';
+          //notification.innerHTML = `<b>Success</b>`;
           break;
         case 201:
-          content.innerHTML = `<b>Created</b>`;
+          //notification.className += ' is-success';
+          //notification.innerHTML = `<b>Created</b>`;
           break;
         case 204:
-          content.innerHTML = `<b>Updated (No Content)</b>`;
+          //notification.className += ' is-success';
+          //content.innerHTML = `<b>Updated (No Content)</b>`;
           break;
         case 400:
-          content.innerHTML = `<b>Bad Request</b>`;
+          //notification.className += ' is-danger';
+          //notification.innerHTML = `<b>Bad Request</b>`;
           break;
         case 404:
-          content.innerHTML = `<b>Not Found</b>`;
+          //notification.className += ' is-danger';
+          //notification.innerHTML = `<b>Not Found</b>`;
           break;
         default:
-          content.innerHTML = `Error code not implemented by client.`;
+          //notification.className += ' is-warning';
+          //notification.innerHTML = `Error code not implemented by client.`;
           break;
-      }*/
+      }
       if(parseResponse) {
         let obj = await response.json();
         console.log(obj);
         if(obj.message) {
-            content.innerHTML += `<p>Message: ${obj.message}</p>`;
+            //content.innerHTML += `<p>Message: ${obj.message}</p>`;
             if(response.status === 201) {
                 requestUpdate();
             }
@@ -105,13 +153,13 @@
             let collections = obj.collections;
             console.log(collections);
             if(collections.length >= 1) {
-                for(let c of collections) {
-                    content.appendChild(createHTML(c));
-                }
+                createHTML(collections, content);
             }
         }
       }
 
+      //const notifications = document.querySelector('#notifications');
+      //if (notification.innerHTML != '') notifications.appendChild(notification);
       if(response.status == 204) requestUpdate();
     };
 
@@ -212,10 +260,25 @@
     <form id="collectionsForm" action="/addCollection" method="post">
         <label for="collectionName">Collection Name: </label>
         <input id="collectionNameField" type="text" name="collectionName" />
-        <input type="submit" value="Add Collection" />
+        <button id="bulmaButton" type="submit" class="button is-info">Add Collection</button>
     </form>
   </section>
-  <section id="content">
+  <section id="collectionContent">
   </section>
+  <section id="notifications">   
+  </section>
+  <footer style="background-color: hsl(204, 86%, 53%);">
+    <div class="columns">
+      <div class="column is-one-third">
+        <h3>Amiibo Collector by Trevor Dunn</h3>
+      </div>
+      <div class="column is-one-third">
+        <h3>Utilizes Amiibo API</h3>
+      </div>
+      <div class="column is-one-third">
+        <h3>Amiibo Logo Source: <a href="https://en.wikipedia.org/wiki/File:Amiibo_logo.png">Wikipedia</h3>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

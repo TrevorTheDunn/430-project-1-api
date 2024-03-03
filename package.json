@@ -1,7 +1,7 @@
 {
-  "name": "http-api-assignment-ii",
+  "name": "430-project-1",
   "version": "1.0.0",
-  "description": "",
+  "description": "Amiibo Search and Collector",
   "main": "./src/server.js",
   "scripts": {
     "start": "node ./src/server.js",
